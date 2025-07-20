@@ -1,0 +1,43 @@
+{
+  "include": ["backend"],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    ".git",
+    ".venv",
+    "frontend",
+    "backend/app/tests"
+  ],
+  "ignore": ["backend/app/tests"],
+  "defineConstant": {
+    "DEBUG": true
+  },
+  "stubPath": "backend",
+  "venvPath": ".",
+  "venv": ".venv",
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Darwin",
+  "typeCheckingMode": "basic",
+  "useLibraryCodeForTypes": true,
+  "autoImportCompletions": true,
+  "extraPaths": ["backend"],
+  "reportMissingImports": "warning",
+  "reportMissingTypeStubs": false,
+  "reportInvalidTypeForm": "none",
+  "reportUndefinedVariable": "warning",
+  "reportGeneralTypeIssues": "warning",
+  "reportOptionalSubscript": "warning",
+  "reportOptionalMemberAccess": "warning",
+  "reportOptionalCall": "warning",
+  "reportOptionalIterable": "warning",
+  "reportOptionalContextManager": "warning",
+  "reportOptionalOperand": "warning",
+  "reportTypedDictNotRequiredAccess": "warning",
+  "reportPrivateUsage": "none",
+  "reportUnusedImport": "information",
+  "reportUnusedClass": "information",
+  "reportUnusedFunction": "none",
+  "reportUnusedVariable": "information",
+  "reportDuplicateImport": "warning",
+  "reportWildcardImportFromLibrary": "warning"
+}

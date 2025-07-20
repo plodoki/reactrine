@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "charliermarsh.ruff",
+        "ms-python.python",
+        "ms-python.mypy-type-checker",
+        "ms-python.pylance",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next"
+    ]
+}

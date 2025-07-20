@@ -1,0 +1,91 @@
+[tool.black]
+ line-length = 88
+ # Target Python 3.11+
+ target-version = ['py311']
+ include = '\.pyi?$'
+ exclude = '''
+ /(
+   \.git
+   | \.venv
+   | build
+   | dist
+ )/
+ '''
+
+ [tool.isort]
+ profile = "black"
+ src_paths = ["backend"]
+ known_first_party = ["backend"]
+
+ [tool.ruff]
+ # Align with Black settings
+ line-length = 88
+ src = ["backend"]
+ exclude = [
+     "backend/app/tests",
+ ]
+ lint.select = [
+     "E",    # pycodestyle errors
+     "F",    # pyflakes
+     "ANN",  # type annotation checks
+     "I",  # import-related checks
+
+ ]
+ lint.ignore = [
+     "E203",  # whitespace before ':'
+     "E501",  # line too long
+     "ANN401",  # dynamically typed expressions (Any) - allowed for flexible APIs
+ ]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = false
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+# Enable stricter checking to match IDE (disabled for now due to extensive Any usage)
+# disallow_any_unimported = true
+# disallow_any_expr = true
+# disallow_any_decorated = true
+# disallow_any_generics = true
+
+# Paths and modules
+mypy_path = "backend"
+namespace_packages = true
+
+# Per-module options
+[[tool.mypy.overrides]]
+module = [
+    "boto3.*",
+    "botocore.*",
+    "openai.*",
+    "uvicorn.*",
+    "structlog.*",
+    "celery.*"
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "backend.app.tests.*"
+ignore_errors = true
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["backend/app/tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore:.*'crypt' is deprecated.*:DeprecationWarning",
+    "ignore:.*Support for class-based.*:pydantic.warnings.PydanticDeprecatedSince20"
+]

@@ -1,0 +1,104 @@
+# syntax=docker/dockerfile:1.7
+
+# Base Docker Compose configuration
+# This file contains common configuration shared across all environments
+# Environment-specific overrides should be in:
+# - docker-compose.override.yml (development - automatically loaded)
+# - docker-compose.prod.yml (production - loaded with -f flag)
+
+services:
+  postgres:
+    image: postgres:17-bookworm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - config/common.env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  backend:
+    build:
+      context: .
+      secrets:
+        - pip_extra_index_url
+    env_file:
+      - config/common.env
+    secrets:
+      - postgres_password
+      - secret_key
+      - session_secret_key
+      - openai_api_key
+      - openrouter_api_key
+      - aws_access_key_id
+      - aws_secret_access_key
+      - pak_private_key
+      - pak_public_key
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+# Base secrets configuration
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password.txt
+  secret_key:
+    file: ./secrets/secret_key.txt
+  session_secret_key:
+    file: ./secrets/session_secret_key.txt
+  openai_api_key:
+    file: ./secrets/openai_api_key.txt
+  openrouter_api_key:
+    file: ./secrets/openrouter_api_key.txt
+  aws_access_key_id:
+    file: ./secrets/aws_access_key_id.txt
+  aws_secret_access_key:
+    file: ./secrets/aws_secret_access_key.txt
+  pip_extra_index_url:
+    file: ./secrets/pip_extra_index_url.txt
+  pak_private_key:
+    file: ./secrets/pak_private_key.txt
+  pak_public_key:
+    file: ./secrets/pak_public_key.txt
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: app-network
