@@ -3,6 +3,7 @@
 import os
 import threading
 from typing import Optional
+from urllib.parse import quote_plus
 
 from pydantic import Field, PostgresDsn
 from pydantic_settings import BaseSettings
@@ -40,11 +41,13 @@ class DatabaseSettings(BaseSettings):
 
         # Build the DSN from components
         try:
+            # URL-encode the password to handle special characters
+            encoded_password = quote_plus(self.POSTGRES_PASSWORD)
             return str(
                 PostgresDsn.build(
                     scheme="postgresql",
                     username=self.POSTGRES_USER,
-                    password=self.POSTGRES_PASSWORD,
+                    password=encoded_password,
                     host=self.POSTGRES_SERVER,
                     path=self.POSTGRES_DB,
                 )

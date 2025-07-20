@@ -120,3 +120,7 @@ jobs:
       - name: Run frontend tests
         run: |
           cd frontend && npm test
+        env:
+          # Set UTF-8 locale for consistent character encoding
+          LC_ALL: en_US.UTF-8
+          LANG: en_US.UTF-8
