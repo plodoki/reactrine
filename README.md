@@ -42,7 +42,7 @@ To get a local copy up and running, follow these simple steps.
 
 1.  Clone the repo
     ```sh
-    git clone https://github.com/your_username_/Project-Name.git
+    git clone https://github.com/plodoki/reactrine.git
     ```
 2.  Set up the environment
     ```sh
