@@ -33,7 +33,7 @@ class DatabaseSettings(BaseSettings):
     def DATABASE_URL(self) -> str:
         """
         Returns the PostgreSQL database URL, using the `DATABASE_URL` environment variable if set, or assembling it from individual settings with a URL-encoded password.
-        
+
         Raises:
             ValueError: If the configuration is invalid or the URL cannot be assembled.
         """
