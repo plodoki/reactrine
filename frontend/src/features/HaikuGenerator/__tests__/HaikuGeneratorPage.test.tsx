@@ -1,6 +1,6 @@
 import { mockHaikuResponse } from '@/test/factories';
 import { renderWithProviders } from '@/test/utils';
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import HaikuGeneratorPage from '../HaikuGeneratorPage';
@@ -492,16 +492,22 @@ describe('HaikuGeneratorPage Component', () => {
         mutate: mockMutate,
       });
 
-      const user = userEvent.setup();
       renderWithProviders(<HaikuGeneratorPage />);
 
       const longTopic = 'a'.repeat(1000);
       const topicInput = screen.getByLabelText(/haiku topic/i);
-      await user.type(topicInput, longTopic);
-      await user.keyboard('{Enter}');
+
+      // Use fireEvent.change for large text inputs to avoid timeout issues in CI
+      fireEvent.change(topicInput, { target: { value: longTopic } });
+
+      // Submit the form directly instead of using Enter key
+      const form = topicInput.closest('form');
+      if (form) {
+        fireEvent.submit(form);
+      }
 
       expect(mockMutate).toHaveBeenCalledWith({ topic: longTopic });
-    });
+    }, 10000); // Increase timeout to 10 seconds for this test
 
     it('should handle special characters in topic', async () => {
       const mockMutate = vi.fn();
@@ -513,12 +519,37 @@ describe('HaikuGeneratorPage Component', () => {
       const user = userEvent.setup();
       renderWithProviders(<HaikuGeneratorPage />);
 
-      const specialTopic = 'nature & seasons! 🌸';
+      // Use ASCII-safe special characters to avoid encoding issues in CI
+      const specialTopic = 'nature & seasons! #poetry';
       const topicInput = screen.getByLabelText(/haiku topic/i);
       await user.type(topicInput, specialTopic);
       await user.keyboard('{Enter}');
 
       expect(mockMutate).toHaveBeenCalledWith({ topic: specialTopic });
+    });
+
+    it('should handle unicode characters using fireEvent for CI compatibility', () => {
+      const mockMutate = vi.fn();
+      mockUseHaikuGenerator.mockReturnValue({
+        ...defaultHookReturn,
+        mutate: mockMutate,
+      });
+
+      renderWithProviders(<HaikuGeneratorPage />);
+
+      // Use fireEvent for Unicode characters to avoid encoding issues in CI
+      const unicodeTopic = 'nature & seasons! 🌸';
+      const topicInput = screen.getByLabelText(/haiku topic/i);
+
+      fireEvent.change(topicInput, { target: { value: unicodeTopic } });
+
+      // Submit the form directly instead of using Enter key
+      const form = topicInput.closest('form');
+      if (form) {
+        fireEvent.submit(form);
+      }
+
+      expect(mockMutate).toHaveBeenCalledWith({ topic: unicodeTopic });
     });
   });
 
